@@ -3,8 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Media;
+//using System.Windows.Media;
 
 namespace KDTrees.Utility
 {
@@ -38,15 +37,15 @@ namespace KDTrees.Utility
             return rnd.Next(min, max);
         }
 
-        public static Color NextColor()
-        {
-            byte a = 255;
-            byte r = (byte)rnd.Next(0, 256);
-            byte g = (byte)rnd.Next(0, 256);
-            byte b = (byte)rnd.Next(0, 256);
+        //public static Color NextColor()
+        //{
+        //    byte a = 255;
+        //    byte r = (byte)rnd.Next(0, 256);
+        //    byte g = (byte)rnd.Next(0, 256);
+        //    byte b = (byte)rnd.Next(0, 256);
 
-            return Color.FromArgb(a, r, g, b);
-        }
+        //    return Color.FromArgb(a, r, g, b);
+        //}
 
         public static Point NextPointNormalized()
         {
@@ -89,7 +88,8 @@ namespace KDTrees.Utility
 
         public double Delta { get; set; }
 
-        public Stats(double min, double max, double avg, double delta) : this()
+        public Stats(double min, double max, double avg, double delta)
+            : this()
         {
             this.Min = min;
             this.Max = max;

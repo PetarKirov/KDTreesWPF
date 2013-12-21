@@ -15,7 +15,7 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using KDTrees.Utility;
 
-namespace KDTrees
+namespace WpfPlayground
 {
     public partial class DrawingCanvas : UserControl
     {
