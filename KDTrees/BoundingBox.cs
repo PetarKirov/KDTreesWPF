@@ -74,7 +74,7 @@ namespace KDTrees
             var right = new BoundingBox(this);
 
             left.Max[axis] = where;
-            right.Min = left.Max;
+            right.Min[axis] = where;
 
             return new Pair<BoundingBox>(left, right);
         }

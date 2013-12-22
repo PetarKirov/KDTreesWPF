@@ -60,11 +60,15 @@ namespace KDTreesTests
             var a = pair.A;
             var b = pair.B;
 
-            Assert.AreEqual(a.Min, new Point(0.0, 0.0));
-            Assert.AreEqual(a.Max, new Point(5, 13));
+            Assert.AreEqual(new Point(0.0, 0.0), 
+                a.Min);
+            Assert.AreEqual(new Point(5, 13), 
+                a.Max);
 
-            Assert.AreEqual(b.Min, new Point(5, 13));
-            Assert.AreEqual(b.Max, new Point(10, 13));
+            Assert.AreEqual(new Point(5, 0), 
+                b.Min);
+            Assert.AreEqual(new Point(10, 13), 
+                b.Max);
         }
 
         [TestMethod]
@@ -77,11 +81,36 @@ namespace KDTreesTests
             var a = pair.A;
             var b = pair.B;
 
-            Assert.AreEqual(a.Min, new Point(0.0, 0.0));
-            Assert.AreEqual(a.Max, new Point(10, 5));
+            Assert.AreEqual(new Point(0.0, 0.0), 
+                a.Min);
+            Assert.AreEqual(new Point(10, 5), 
+                a.Max);
 
-            Assert.AreEqual(b.Min, new Point(10, 5));
-            Assert.AreEqual(b.Max, new Point(10, 13));
+            Assert.AreEqual(new Point(0, 5), 
+                b.Min);
+            Assert.AreEqual(new Point(10, 13), 
+                b.Max);
+        }
+
+        [TestMethod]
+        public void TesSplitByZ1()
+        {
+            BoundingBox bb = new BoundingBox(new Point(3.4, 7.0, 8.0), new Point(20.0, 13.0, 10.0));
+
+            var pair = bb.Split(9, Axis.Z);
+
+            var a = pair.A;
+            var b = pair.B;
+
+            Assert.AreEqual(new Point(3.4, 7.0, 8.0), 
+                a.Min);
+            Assert.AreEqual( new Point(20.0, 13.0, 9.0), 
+                a.Max);
+
+            Assert.AreEqual(new Point(3.4, 7.0, 9.0), 
+                b.Min);
+            Assert.AreEqual(new Point(20.0, 13.0, 10.0), 
+                b.Max);
         }
 
         [TestMethod]
@@ -89,8 +118,10 @@ namespace KDTreesTests
         {
             var max = BoundingBox.MaxValue;
 
-            Assert.AreEqual(max.Min, new Point(0, 0, 0));
-            Assert.AreEqual(max.Max, new Point(double.MaxValue, double.MaxValue, double.MaxValue));
+            Assert.AreEqual(new Point(0, 0, 0), 
+                max.Min);
+            Assert.AreEqual(new Point(double.MaxValue, double.MaxValue, double.MaxValue), 
+                max.Max);
         }
     }
 }
