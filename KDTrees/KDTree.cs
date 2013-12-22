@@ -6,48 +6,27 @@ using System.Threading.Tasks;
 
 namespace KDTrees
 { 
-    public abstract class KDNode
+    public class KDNode
     {
-        public BoundingBox Boundaries { get; set; }
-
-        public abstract KDNode[] ChildNodes { get; }
-
-        public KDNode Left { get { return this.ChildNodes[0]; } }
-
-        public KDNode Right { get { return this.ChildNodes[1]; } }
-    }
-
-    public class KDNodeWithChildNodes : KDNode
-    {
-        private KDNode[] childNodes = new KDNode[2];
-        public override KDNode[] ChildNodes
+        public KDNode(BoundingBox boundaries, Axis separationAxis, double separationPoint = double.NaN)
         {
-            get { return this.childNodes; }
+            if (separationAxis == Axis.None)
+                this.Geometry = new List<Triangle>();
+            else
+                this.ChildNodes = new KDNode[2];
+
+            this.SeparationAxis = separationAxis;
+            this.SeparationPoint = SeparationPoint;
         }
 
-        public Axis SeparationAxis { get; set; }
+        public BoundingBox Boundaries { get; private set; }
 
-        public double separationPoint { get; set; }
-    }
+        public KDNode[] ChildNodes { get; private set; }
 
-    public class KDNodeWithGeometry : KDNode
-    {
-        public override KDNode[] ChildNodes
-        {
-            get { throw new InvalidOperationException("No child nodes!"); }
-        }
+        public readonly List<Triangle> Geometry { get; private set; }
 
-        public readonly List<Triangle> geometry;
+        public Axis SeparationAxis { get; private set; }
 
-        public static KDNode CreateTree()
-        {
-            var root = new KDNodeWithGeometry()
-            {
-                //geometry = 
-            };
-
-
-            return root;
-        }
+        public double SeparationPoint { get; private set; }
     }
 }
