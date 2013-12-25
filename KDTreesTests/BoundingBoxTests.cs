@@ -8,23 +8,26 @@ namespace KDTreesTests
     public class BoundingBoxTests
     {
         [TestMethod]
-        public void TestConstructor1()
+        public void Constructor_WithValidArgs_ShouldNotThrow()
         {
-            BoundingBox b1 = new BoundingBox(new Point(0.0), new Point(0.0));
-            BoundingBox b2 = new BoundingBox(new Point(0.0, 0.0), new Point(0.0, 0.0));
-            BoundingBox b3 = new BoundingBox(new Point(0.0, 0.0, 0.0), new Point(0.0, 0.0, 0.0));
+            try
+            {
+                BoundingBox b1 = new BoundingBox(new Point(0.0), new Point(0.0));
+                BoundingBox b2 = new BoundingBox(new Point(0.0, 0.0), new Point(0.0, 0.0));
+                BoundingBox b3 = new BoundingBox(new Point(0.0, 0.0, 0.0), new Point(0.0, 0.0, 0.0));
+
+                BoundingBox b4 = new BoundingBox(new Point(17.8), new Point(24.7));
+                BoundingBox b5 = new BoundingBox(new Point(17.8, 9.5), new Point(24.7, 10.3));
+                BoundingBox b6 = new BoundingBox(new Point(17.8, 9.5, 13.2), new Point(24.7, 10.3, 18.7));
+            }
+            catch
+            {
+                Assert.Fail();
+            }
         }
 
         [TestMethod]
-        public void TestConstructor3()
-        {
-            BoundingBox b1 = new BoundingBox(new Point(17.8), new Point(24.7));
-            BoundingBox b2 = new BoundingBox(new Point(17.8, 9.5), new Point(24.7, 10.3));
-            BoundingBox b3 = new BoundingBox(new Point(17.8, 9.5, 13.2), new Point(24.7, 10.3, 18.7));
-        }
-
-        [TestMethod]
-        public void TestConstructor4()
+        public void Constructor_WithTriangle_ShoudExtendProperly()
         {
             BoundingBox b1 = new BoundingBox(
                 new Triangle(
@@ -37,21 +40,29 @@ namespace KDTreesTests
         }
 
         [TestMethod]
-        [ExpectedException(typeof(ArgumentException))]
-        public void TestConstructorException1()
+        public void Constructor_WithReversedArguments_ShouldThrowArgumentException()
         {
-            BoundingBox b1 = new BoundingBox(new Point(5.0, 0.0), new Point(0.0, 0.0));
+            try
+            {
+                BoundingBox b1 = new BoundingBox(new Point(5.0, 0.0), new Point(0.0, 0.0));
+            }
+            catch(ArgumentException ex)
+            {
+                Assert.AreEqual("min should be smaller than max!", ex.Message);
+            }
+
+            try
+            {
+                BoundingBox b1 = new BoundingBox(new Point(0.0, 5.0), new Point(0.0, 0.0));
+            }
+            catch (ArgumentException ex)
+            {
+                Assert.AreEqual("min should be smaller than max!", ex.Message);
+            }
         }
 
         [TestMethod]
-        [ExpectedException(typeof(ArgumentException))]
-        public void TestConstructorException2()
-        {
-            BoundingBox b1 = new BoundingBox(new Point(0.0, 5.0), new Point(0.0, 0.0));
-        }
-
-        [TestMethod]
-        public void TesSplitByX1()
+        public void Split_ByX()
         {
             BoundingBox bb = new BoundingBox(new Point(0.0, 0.0), new Point(10, 13));
 
@@ -72,7 +83,7 @@ namespace KDTreesTests
         }
 
         [TestMethod]
-        public void TesSplitByY1()
+        public void Split_ByY()
         {
             BoundingBox bb = new BoundingBox(new Point(0.0, 0.0), new Point(10, 13));
 
@@ -93,7 +104,7 @@ namespace KDTreesTests
         }
 
         [TestMethod]
-        public void TesSplitByZ1()
+        public void Split_ByZ()
         {
             BoundingBox bb = new BoundingBox(new Point(3.4, 7.0, 8.0), new Point(20.0, 13.0, 10.0));
 
@@ -114,7 +125,22 @@ namespace KDTreesTests
         }
 
         [TestMethod]
-        public void TestMaxValue()
+        public void Split_ByNone_ShouldThrowArgumentException()
+        {
+            BoundingBox bb = new BoundingBox(new Point(3.4, 7.0, 8.0), new Point(20.0, 13.0, 10.0));
+            
+            try
+            {
+                var pair = bb.Split(9, Axis.None);
+            }
+            catch(ArgumentException ex)
+            {
+                Assert.AreEqual("The splitting axis should be X, Y or Z!", ex.Message);
+            }
+        }
+
+        [TestMethod]
+        public void MaxValue_ShouldBeFrom_0_To_Inf()
         {
             var max = BoundingBox.MaxValue;
 

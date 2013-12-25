@@ -8,7 +8,7 @@ namespace KDTreesTests
     public class TriangleTests
     {
         [TestMethod]
-        public void TestPerimeter2D()
+        public void Perimeter2D()
         {
             var t = new Triangle(new Point(0.0, 0.0), new Point(4.0, 0.0), new Point(0.0, 3.0));
             Assert.AreEqual(12.0, t.Peremiter2D);
@@ -18,7 +18,7 @@ namespace KDTreesTests
         }
 
         [TestMethod]
-        public void TestArea2D()
+        public void Area2D()
         {
             var t = new Triangle(new Point(0.0, 0.0), new Point(4.0, 0.0), new Point(0.0, 3.0));
             double s = t.Area2D;
@@ -26,7 +26,6 @@ namespace KDTreesTests
             Assert.AreEqual(expectedS, s);
 
             var t2 = new Triangle(new Point(0.0, 0.0), new Point(0.0, 0.0), new Point(0.0, 0.0));
-
             Assert.AreEqual(0.0, t2.Area2D);
         }
     }

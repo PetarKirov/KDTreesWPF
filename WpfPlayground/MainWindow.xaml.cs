@@ -31,25 +31,25 @@ namespace WpfPlayground
 
         private void Button_Click(object sender, RoutedEventArgs e)
         {
-            //for (int i = 0; i < 100000; i++)
-            //{
-            //    var pos = RandomGenerator.GetRandomPointInCoordinates(
-            //        new Point(0.0, 0.0),
-            //        new Point(this.drawingCanvas.ActualWidth, this.drawingCanvas.ActualHeight));
-
-            //    this.drawingCanvas.DrawEllipse(pos, 1, RandomGenerator.GetRandomColor());
-            //}
-
-            int n = 10;
-
-            var d = RG.CreateArray(n, (x) => 0);
-
-            for (int i = 0; i < n * 1000000; i++)
+            for (int i = 0; i < 10000; i++)
             {
-                d[RG.Next(0, n)]++;
+                var pos = RG.NextPointInCoordinates(
+                    new Point(0.0, 0.0),
+                    new Point(this.drawingCanvas.ActualWidth, this.drawingCanvas.ActualHeight));
+
+                this.drawingCanvas.DrawEllipse(pos, 1, RG.NextColor());
             }
 
-            var s = Stats.FindFrom(d);
+            //int n = 10;
+
+            //var d = RG.CreateArray(n, (x) => 0);
+
+            //for (int i = 0; i < n * 1000000; i++)
+            //{
+            //    d[RG.Next(0, n)]++;
+            //}
+
+            //var s = Stats.FindFrom(d);
         }
     }
 

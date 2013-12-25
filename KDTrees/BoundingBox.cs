@@ -57,8 +57,46 @@ namespace KDTrees
                 Max.Z = p.Z;
         }
 
+        public bool Contains(Point point, double delta = 1e-6)
+        {
+            return (Min.X - delta <= point.X && point.X <= Max.X + delta &&
+                    Min.Y - delta <= point.Y && point.Y <= Max.Y + delta &&
+                    Min.Z - delta <= point.Z && point.Z <= Max.Z + delta);
+        }
+
+        /// <summary>
+        /// Naively checks if a triangle is containd in the bounding box.
+        /// </summary>
+        /// <remarks>
+        /// Does not account for the other 2 cases: 
+        /// A) One of the sides of the triangle intersects the bounding box.
+        /// B) An edge of the bounding box intersects the triangle area.
+        /// </remarks>
+        /// <returns>
+        /// true if its 3 vertices are inside.
+        /// </returns>
+        public bool Contains(Triangle t, double delta = 1e-6)
+        {
+            //TODO: Check the other 2 cases.
+            return Contains(t.A, delta) || Contains(t.B, delta) || Contains(t.C, delta);
+        }
+
+        /// <summary>
+        /// Checks if a triangle is containd in the bounding box.
+        /// </summary>
+        /// <returns>
+        /// true if its 3 vertices are inside.
+        /// </returns>
+        public bool Contains2D(Triangle t, double delta = 1e-6)
+        {
+            return Contains(t.A, delta) || Contains(t.B, delta) || Contains(t.C, delta);
+        }
+
         public Pair<BoundingBox> Split(double where, Axis axis)
         {
+            if (axis == Axis.None)
+                throw new ArgumentException("The splitting axis should be X, Y or Z!");
+
             var left = new BoundingBox(this);
             var right = new BoundingBox(this);
 
@@ -66,6 +104,13 @@ namespace KDTrees
             right.Min[axis] = where;
 
             return new Pair<BoundingBox>(left, right);
+        }
+
+        public Pair<BoundingBox> SplitInHalf(Axis axis)
+        {
+            double where = (this.Min[axis] + this.Max[axis]) / 2.0;
+
+            return Split(where, axis);
         }
 
         public static readonly BoundingBox MaxValue = new BoundingBox(

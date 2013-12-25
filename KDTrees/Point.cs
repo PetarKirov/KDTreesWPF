@@ -7,12 +7,33 @@ using KDTrees.Utility;
 
 namespace KDTrees
 {
-    public enum Axis
+    public enum Axis : uint
     {
         X,
         Y,
         Z,
         None
+    }
+
+    public static class AxisExtensions
+    {
+        /// <summary>
+        /// Cycles through X, Y and Z
+        /// </summary>
+        public static Axis Next(this Axis a)
+        {
+            int i = (int)a;
+            return (Axis)((++i) % 3);
+        }
+
+        /// <summary>
+        /// Cycles through X and Y
+        /// </summary>
+        public static Axis Next2D(this Axis a)
+        {
+            int i = (int)a;
+            return (Axis)((++i) % 2);
+        }
     }
 
     public class Point<T> : IEquatable<Point<T>> where T : IComparable<T>, IEquatable<T>
@@ -119,9 +140,21 @@ namespace KDTrees
             : base(x)
         { }
 
-        //public Point(System.Windows.Point wpfPoint)
-        //    : base(wpfPoint.X, wpfPoint.Y)
-        //{ }
+        /// <summary>
+        /// Implicitly converts *from* a WPF Point.
+        /// </summary>
+        public static implicit operator Point(System.Windows.Point wpfPoint)
+        {
+            return new Point(wpfPoint.X, wpfPoint.Y);
+        }
+
+        /// <summary>
+        /// Implicitly converts *to* a WPF Point by using only the X and Y components.
+        /// </summary>
+        public static implicit operator System.Windows.Point(Point point)
+        {
+            return new System.Windows.Point(point.X, point.Y);
+        }
 
         /// <summary>
         /// Returns true if all of the coordinates of first Point are less then those of second
@@ -175,6 +208,9 @@ namespace KDTrees
                 p.Z / a);
         }
 
+        /// <summary>
+        /// Calculates the distance between two points in 3D.
+        /// </summary>
         public static double DistanceBetween(Point a, Point b)
         {
             double dx = a.X - b.X;
@@ -184,6 +220,9 @@ namespace KDTrees
             return Math.Sqrt(dx * dx + dy * dy + dz * dz);
         }
 
+        /// <summary>
+        /// Calculates the distance between two points in 2D (without accounting for the Z dimension).
+        /// </summary>
         public static double DistanceBetween2D(Point a, Point b)
         {
             double dx = a.X - b.X;
@@ -192,11 +231,18 @@ namespace KDTrees
             return Math.Sqrt(dx * dx + dy * dy);
         }
 
+        /// <summary>
+        /// Calculates the distance between *this* and the *other* point in 3D.
+        /// </summary>
         public double DistanceTo(Point other)
         {
             return DistanceBetween(this, other);
         }
 
+        /// <summary>
+        /// Calculates the distance between *this* and the *other* point in 2D
+        /// (without accounting for the Z dimension).
+        /// </summary>
         public double DistanceTo2D(Point other)
         {
             return DistanceBetween2D(this, other);

@@ -9,126 +9,109 @@ namespace KDTrees.Utility
 {
     public static class Extensions
     {
+        /// <summary>
+        ///  Returns a copy of formatString in which the format items have been replaced by the string
+        ///  representation of the corresponding objects in args.
+        /// </summary>
         public static string Format(this string formatString, params object[] args)
         {
             return string.Format(formatString, args);
         }
-    }
 
-    /// <summary>
-    /// A handy wrapper around System.Random.
-    /// </summary>
-    public static class RG
-    {
-        private static readonly Random rnd = new Random(123);
-
-        public static int Next()
+        /// <summary>
+        /// Moves all of the elements out of *this* list and returns them as a result.
+        /// </summary>
+        /// <returns> all of the elements of the original list</returns>
+        public static List<T> TakeAll<T>(this IList<T> list)
         {
-            return rnd.Next();
+            return list.TakeIf(_ => true);
         }
 
-        public static int Next(int max)
+        /// <summary>
+        /// Moves the elements for which the condition is satisfied
+        /// out of *this* list and returns them as a result.
+        /// </summary>
+        /// <returns>the elements that satisfy the provided condition</returns>
+        public static List<T> TakeIf<T>(this IList<T> list, Predicate<T> condition)
         {
-            return rnd.Next(max);
-        }
+            var result = new List<T>();
 
-        public static int Next(int min, int max)
-        {
-            return rnd.Next(min, max);
-        }
-
-        //public static Color NextColor()
-        //{
-        //    byte a = 255;
-        //    byte r = (byte)rnd.Next(0, 256);
-        //    byte g = (byte)rnd.Next(0, 256);
-        //    byte b = (byte)rnd.Next(0, 256);
-
-        //    return Color.FromArgb(a, r, g, b);
-        //}
-
-        public static Point NextPointNormalized()
-        {
-            return new Point(rnd.NextDouble(), rnd.NextDouble());
-        }
-
-        public static Point NextPoint()
-        {
-            return new Point(rnd.Next(), rnd.Next());
-        }
-
-        public static Point NextPointInCoordinates(Point min, Point max)
-        {
-            return NextPointInCoordinates((int)min.X, (int)min.Y, (int)max.X, (int)max.Y);
-        }
-
-        public static Point NextPointInCoordinates(int minX, int minY, int maxX, int maxY)
-        {
-            return new Point(rnd.Next(minX, maxX), rnd.Next(minY, maxY));
-        }
-
-        public static T[] CreateArray<T>(int count, Func<int, T> func)
-        {
-            var arr = new T[count];
-
-            for (int i = 0; i < count; i++)
+            for (int i = 0; i < list.Count; i++)
             {
-                arr[i] = func(i);
+                if (condition(list[i]))
+                {
+                    result.Add(list[i]);
+                    list.RemoveAt(i--);
+                }
             }
 
-            return arr;
-        }
-    }
-
-    public struct Stats
-    {
-        public double Min { get; set; }
-        public double Max { get; set; }
-        public double Avg { get; set; }
-
-        public double Delta { get; set; }
-
-        public Stats(double min, double max, double avg, double delta)
-            : this()
-        {
-            this.Min = min;
-            this.Max = max;
-            this.Avg = avg;
-            this.Delta = delta;
+            return result;
         }
 
-        public static Stats FindFrom(IEnumerable<double> values)
+        /// <summary>
+        /// Checks whether the specified lists *a* and *b* contain equal elements
+        /// determined by the IEquatable<T>.Equals().
+        /// </summary>
+        public static bool IListEquals<T>(IList<T> a, IList<T> b) where T : IEquatable<T>
         {
-            double min = Double.MaxValue;
-            double max = Double.MinValue;
-            double avg = 0.0;
-            double delta = 0.0;
+            return IListEquals(a, b, (x, y) => x.Equals(y));
+        }
 
-            foreach (var x in values)
+        /// <summary>
+        /// Checks whether the specified lists *a* and *b* contain equal elements
+        /// determined by the provided comparer
+        /// </summary>
+        /// <param name="comparer">The function which takes two elements from the
+        /// lists and returns true if they are equal.
+        /// </param>
+        public static bool IListEquals<T>(IList<T> a, IList<T> b, Func<T, T, bool> comparer)
+        {
+            if (a.Count != b.Count)
+                return false;
+
+            for (int i = 0; i < a.Count; i++)
+                if (!comparer(a[i], b[i]))
+                    return false;
+
+            return true;
+        }
+
+        /// <summary>
+        /// Checks whether the specified sequences *a* and *b* contain equal elements
+        /// determined by the IEquatable<T>.Equals().
+        /// </summary>
+        public static bool IEnumerableEquals<T>(IEnumerable<T> a, IEnumerable<T> b) where T: IEquatable<T>
+        {
+            return IEnumerableEquals(a, b, (x, y) => x.Equals(y));
+        }
+
+        /// <summary>
+        /// Checks whether the specified sequences *a* and *b* contain equal elements
+        /// determined by the provided comparer
+        /// </summary>
+        /// <param name="comparer">The function which takes two elements from the
+        /// sequences and returns true if they are equal.
+        /// </param>
+        public static bool IEnumerableEquals<T>(IEnumerable<T> a, IEnumerable<T> b, Func<T, T, bool> comparer)
+        {
+            bool aHasNext, bHasNext;            
+
+            var iA = a.GetEnumerator();
+            var iB = b.GetEnumerator();
+
+            aHasNext = iA.MoveNext();
+            bHasNext = iB.MoveNext();
+
+            while (aHasNext && bHasNext)
             {
-                min = Math.Min(min, x);
-                max = Math.Max(max, x);
+                if (!comparer(iA.Current, iB.Current))
+                    return false;
+
+                aHasNext = iA.MoveNext();
+                bHasNext = iB.MoveNext();
             }
 
-            avg = (min + max) / 2;
-            delta = max - min;
-
-            return new Stats(min, max, avg, delta);
-        }
-
-        public static Stats FindFrom(IEnumerable<float> values)
-        {
-            return FindFrom(values.Select(x => (double)x));
-        }
-
-        public static Stats FindFrom(IEnumerable<long> values)
-        {
-            return FindFrom(values.Select(x => (double)x));
-        }
-
-        public static Stats FindFrom(IEnumerable<int> values)
-        {
-            return FindFrom(values.Select(x => (double)x));
+            return aHasNext == bHasNext;
         }
     }
 }
