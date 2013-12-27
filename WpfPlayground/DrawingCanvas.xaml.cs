@@ -13,6 +13,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using WpfPlayground.Utility;
 using KDTrees.Utility;
 
 namespace WpfPlayground
@@ -21,11 +22,48 @@ namespace WpfPlayground
     {
         public event LineDrawnEventHandler LineDrawn;
 
+        private DrawingCanvasViewModel VM { get { return this.DataContext as DrawingCanvasViewModel; } }
+
+        private HashSet<KDTrees.Pair<KDTrees.BoundingBox>> boxes;
+
         public DrawingCanvas()
         {
             InitializeComponent();
 
+            var nodeCreation = Observable.FromEventPattern<KDTrees.KDNode.KDNodeCreatedEventHandler, KDTrees.KDNode.KDNodeCreatedEventArgs>(
+                h => KDTrees.MessageDelegator.Instance.KDNodeCreated += h,
+                h => KDTrees.MessageDelegator.Instance.KDNodeCreated -= h)
+                .ObserveOnDispatcher()
+                .Select(nodeCreated => nodeCreated.EventArgs.SplittedBox);
+
+            boxes = new HashSet<KDTrees.Pair<KDTrees.BoundingBox>>();
+
+            nodeCreation.Subscribe(x =>
+                {
+                    if (boxes.Contains(x))
+                        return;
+
+                    canvas.Children.Add(CreateLine(x));
+                    boxes.Add(x);
+                });
+
             SetUpMouseInteractions();
+        }
+
+
+
+        private Line CreateLine(KDTrees.Pair<KDTrees.BoundingBox> splittedBox)
+        {
+            var line = new Line();
+
+            line.Stroke = Brushes.Black;
+            line.StrokeThickness = 2.0;
+            line.X1 = splittedBox.A.Max.X;
+            line.Y1 = splittedBox.A.Max.Y;
+            line.X2 = splittedBox.B.Min.X;
+            line.Y2 = splittedBox.B.Min.Y;
+
+            return line;
         }
 
         private void SetUpMouseInteractions()
@@ -52,10 +90,23 @@ namespace WpfPlayground
                 p.StrokeThickness = 1;
 
                 canvas.Children.Add(p);
+                this.VM.AddGeometry(p.ToTriangle());
 
                 if (this.LineDrawn != null)
                     LineDrawn(this, new LineDrawnEventArgs(first.Position, second.Position, DateTime.Now));
             });
+        }
+
+        internal async Task BuildTree()
+        {
+            await this.VM.BuildTree(canvas.ActualWidth - 2.0, canvas.ActualHeight - 2.0);
+        }
+
+        internal void Reset()
+        {
+            this.boxes.Clear();
+            this.VM.Reset(true);
+            this.canvas.Children.RemoveElementsOfType<Line>();
         }
 
         internal void DrawEllipse(Point pos, int size, Color color)
@@ -65,6 +116,7 @@ namespace WpfPlayground
             Canvas.SetTop(e, pos.Y);
 
             this.canvas.Children.Add(e);
+            this.VM.AddGeometry(pos.ToPoint());
         }
     }
 

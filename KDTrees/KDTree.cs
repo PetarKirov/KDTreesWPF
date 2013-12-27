@@ -4,20 +4,49 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using KDTrees.Utility;
+using System.Threading;
 
 namespace KDTrees
-{ 
+{
+    public class MessageDelegator
+    {
+        private MessageDelegator() { }
+
+        public static readonly MessageDelegator Instance = new MessageDelegator();
+
+        public event KDTrees.KDNode.KDNodeCreatedEventHandler KDNodeCreated;
+
+        internal void RaiseNodeCreated(KDNode nodeSender, Pair<BoundingBox> splittedBox)
+        {
+            if (this.KDNodeCreated != null)
+                this.KDNodeCreated(this, new KDTrees.KDNode.KDNodeCreatedEventArgs(splittedBox));
+        }
+    }
+
     public class KDNode
     {
+        public class KDNodeCreatedEventArgs : EventArgs
+        {
+            public Pair<BoundingBox> SplittedBox { get; private set; }
+
+            public KDNodeCreatedEventArgs(Pair<BoundingBox> splittedBox)
+            {
+                this.SplittedBox = splittedBox;
+            }
+        }
+
+        public delegate void KDNodeCreatedEventHandler(object sender, KDNodeCreatedEventArgs args);
+
         public KDNode() { }
 
-        public KDNode(BoundingBox boundaries, List<Triangle> geometry = null,  Axis separationAxis = Axis.None, double separationPoint = double.NaN)
+        public KDNode(BoundingBox boundaries, List<IGeometry> geometry = null, Axis separationAxis = Axis.None, double separationPoint = double.NaN)
         {
             if (separationAxis == Axis.None && geometry != null)
                 this.Geometry = geometry;
             else
                 this.ChildNodes = new KDNode[2];
 
+            this.Boundaries = boundaries;
             this.SeparationAxis = separationAxis;
             this.SeparationPoint = SeparationPoint;
         }
@@ -26,7 +55,7 @@ namespace KDTrees
 
         public KDNode[] ChildNodes { get; private set; }
 
-        public KDNode Left 
+        public KDNode Left
         {
             get { return this.ChildNodes[0]; }
             set { this.ChildNodes[0] = value; }
@@ -38,40 +67,44 @@ namespace KDTrees
             set { this.ChildNodes[1] = value; }
         }
 
-        public List<Triangle> Geometry { get; private set; }
+        public List<IGeometry> Geometry { get; private set; }
 
         public Axis SeparationAxis { get; private set; }
 
         public double SeparationPoint { get; private set; }
 
-        public static KDNode BuildTree(List<Triangle> geometry)
+        public static KDNode BuildTree(List<IGeometry> geometry, BoundingBox area)
         {
-            KDNode root = new KDNode(BoundingBox.MaxValue, geometry);
+            KDNode root = new KDNode(area, geometry.ToList());
 
-            BuildTree(root, 1);
+            BuildTree(root, 1, Axis.X);
 
             return root;
         }
 
         private const int MaxDepth = 20;
-        private const int MinTrianglesPerLeaf = 20;
-        
-        private static void BuildTree(KDNode node, uint depth)
+        private const int MinTrianglesPerLeaf = 2; //should be more
+
+        private static void BuildTree(KDNode node, uint depth, Axis axis)
         {
             if (depth > MaxDepth || node.Geometry.Count < MinTrianglesPerLeaf)
                 return;
 
             node.SeparationPoint = 0.5;
-            var boxes = node.Boundaries.SplitInHalf(node.SeparationAxis);
+            var boxes = node.Boundaries.SplitInHalf(axis);
 
-            var leftGeometry = node.Geometry.TakeIf(triangle => boxes.A.Contains(triangle));
+            MessageDelegator.Instance.RaiseNodeCreated(node, boxes);
+            Thread.Sleep(1000);
+
+            var leftGeometry = node.Geometry.TakeIf(triangle => triangle.IsContainedIn(boxes.A));
             var rightGeometry = node.Geometry.TakeAll();
 
+            node.ChildNodes = new KDNode[2];
             node.Left = new KDNode(boxes.A, leftGeometry);
             node.Right = new KDNode(boxes.B, rightGeometry);
 
-            BuildTree(node.Left, depth + 1);
-            BuildTree(node.Right, depth + 1);
+            BuildTree(node.Left, depth + 1, axis.Next2D());
+            BuildTree(node.Right, depth + 1, axis.Next2D());
 
             return;
         }

@@ -9,7 +9,7 @@ namespace WpfPlayground
 {
     public class DrawingCanvasViewModel
     {
-        public List<Triangle> Geometry { get; private set; }
+        public List<IGeometry> Geometry { get; private set; }
 
         public KDNode KDTree { get; private set; }
 
@@ -17,24 +17,30 @@ namespace WpfPlayground
 
         public DrawingCanvasViewModel()
         {
-            this.Geometry = new List<Triangle>();
+            this.Geometry = new List<IGeometry>();
             this.Boxes = new List<BoundingBox>();
         }
 
-        public void AddTriangle(Triangle t)
+        public void AddGeometry(IGeometry geomElement)
         {
-            this.Geometry.Add(t);
+            this.Geometry.Add(geomElement);
         }
 
-        public void BuildTree()
+        public async Task BuildTree(double width, double height)
         {
-            this.KDTree = KDNode.BuildTree(this.Geometry);
+            await Task.Run(() =>
+                {
+                    this.KDTree = KDNode.BuildTree(this.Geometry, new BoundingBox(width, height));
+                });
         }
 
-        public void Reset()
+        public void Reset(bool onlyTree)
         {
-            this.Geometry.Clear();
-            this.Boxes.Clear();
+            if (!onlyTree)
+            {
+                this.Geometry.Clear();
+                this.Boxes.Clear();
+            }
             this.KDTree = null;
         }
     }

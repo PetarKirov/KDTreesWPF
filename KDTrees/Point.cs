@@ -26,8 +26,8 @@ namespace KDTrees
         /// </summary>
         public static Axis Next(this Axis a)
         {
-            int i = (int)a;
-            return (Axis)((++i) % 3);
+            int i = a.ToPointComponentIndex();
+            return FromPointComponentIndex(((++i) % 3));
         }
 
         /// <summary>
@@ -35,8 +35,8 @@ namespace KDTrees
         /// </summary>
         public static Axis Next2D(this Axis a)
         {
-            int i = (int)a;
-            return (Axis)((++i) % 2);
+            int i = a.ToPointComponentIndex();
+            return FromPointComponentIndex(((++i) % 2));
         }
 
         /// <summary>
@@ -55,6 +55,21 @@ namespace KDTrees
                     return 2;
                 default:
                     return 3; //should throw OutOfRangeException if used as p[axis] = val;
+            }
+        }
+
+        public static Axis FromPointComponentIndex(int index)
+        {
+            switch (index)
+            {
+                case 0:
+                    return Axis.X;
+                case 1:
+                    return Axis.Y;
+                case 2:
+                    return Axis.Z;
+                default:
+                    return Axis.None;
             }
         }
     }

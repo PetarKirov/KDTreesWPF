@@ -2,32 +2,50 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:local="clr-namespace:WpfPlayground"
-        Title="MainWindow" Width="800" Height="400">
-    
+        Title="MainWindow"
+        Width="800"
+        Height="400">
+
     <Window.DataContext>
-        <local:MainViewModel/>
+        <local:MainViewModel />
     </Window.DataContext>
 
     <Grid Margin="20">
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
-            <RowDefinition Height="*"/>
-            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
-        
+
         <local:DrawingCanvas Grid.Column="0"
                              x:Name="drawingCanvas"
-                             Background="#338800AA"/>
-        
+                             Background="#338800AA">
+            <local:DrawingCanvas.DataContext>
+                <local:DrawingCanvasViewModel />
+            </local:DrawingCanvas.DataContext>
+        </local:DrawingCanvas>
+
         <ListBox Grid.Column="1"
                  x:Name="log"
-                 ItemsSource="{Binding LogStream}"/>
-        
-        <StackPanel Grid.Row="1" Grid.ColumnSpan="2">
-            <Button Content="Fill with random points" HorizontalAlignment="Center" Click="Button_Click"/>
+                 ItemsSource="{Binding LogStream}" />
+
+        <StackPanel Grid.Row="1"
+                    Grid.ColumnSpan="2">
+
+            <Button Content="Build Tree"
+                    HorizontalAlignment="Left"
+                    Click="BuildTreeOnCanvas" />
+
+            <Button Content="Clear Canvas"
+                    HorizontalAlignment="Left"
+                    Click="ClearCanvas" />
+
+            <Button Content="Fill with random points"
+                    HorizontalAlignment="Center"
+                    Click="FillWithRandomPoints" />
         </StackPanel>
     </Grid>
 </Window>

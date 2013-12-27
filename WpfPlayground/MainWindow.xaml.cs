@@ -1,5 +1,4 @@
-﻿using KDTrees.Utility;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -15,6 +14,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using WpfPlayground.Utility;
 
 namespace WpfPlayground
 {
@@ -27,29 +27,28 @@ namespace WpfPlayground
             this.drawingCanvas.LineDrawn += (s, args) => VM.Append(args.ToString());
         }
 
-        public MainViewModel VM { get { return this.DataContext as MainViewModel; } }
+        private MainViewModel VM { get { return this.DataContext as MainViewModel; } }
 
-        private void Button_Click(object sender, RoutedEventArgs e)
+        private void FillWithRandomPoints(object sender, RoutedEventArgs e)
         {
-            for (int i = 0; i < 10000; i++)
+            for (int i = 0; i < 10; i++)
             {
                 var pos = RG.NextPointInCoordinates(
-                    new Point(0.0, 0.0),
-                    new Point(this.drawingCanvas.ActualWidth, this.drawingCanvas.ActualHeight));
+                    new KDTrees.Point(0.0, 0.0),
+                    new KDTrees.Point(this.drawingCanvas.ActualWidth, this.drawingCanvas.ActualHeight));
 
-                this.drawingCanvas.DrawEllipse(pos, 1, RG.NextColor());
+                this.drawingCanvas.DrawEllipse(pos.ToWpfPoint(), 5, RG.NextColor());
             }
+        }
 
-            //int n = 10;
+        private async void BuildTreeOnCanvas(object sender, RoutedEventArgs e)
+        {
+            await this.drawingCanvas.BuildTree();
+        }
 
-            //var d = RG.CreateArray(n, (x) => 0);
-
-            //for (int i = 0; i < n * 1000000; i++)
-            //{
-            //    d[RG.Next(0, n)]++;
-            //}
-
-            //var s = Stats.FindFrom(d);
+        private void ClearCanvas(object sender, RoutedEventArgs e)
+        {
+            this.drawingCanvas.Reset();
         }
     }
 
