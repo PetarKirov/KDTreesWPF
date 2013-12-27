@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace KDTrees
 {
-    public struct Triangle
+    public class Triangle : IGeometry
     {
         public readonly Point[] points;
 
@@ -99,6 +99,11 @@ namespace KDTrees
                     (a + b - c) *
                     (a + b + c));
             }
+        }
+
+        public bool IsContainedIn(BoundingBox box)
+        {
+            return box.Contains(this);
         }
     }
 }

@@ -1,10 +1,11 @@
-﻿using System;
+﻿using KDTrees;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace KDTrees.Utility
+namespace WpfPlayground.Utility
 {
     /// <summary>
     /// A handy wrapper around System.Random.

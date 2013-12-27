@@ -9,10 +9,14 @@ namespace KDTrees
 {
     public enum Axis : uint
     {
-        X,
-        Y,
-        Z,
-        None
+        None = 0,
+        X = 1,
+        Y = X << 1,
+        Z = Y << 1,
+        XY = X | Y,
+        XZ = X | Z,
+        YZ = Y | Z,
+        XYZ = X | Y | Z
     }
 
     public static class AxisExtensions
@@ -34,6 +38,24 @@ namespace KDTrees
             int i = (int)a;
             return (Axis)((++i) % 2);
         }
+
+        /// <summary>
+        /// Returns 0, 1 or 2 for values of X, Y or Z, respectively.
+        /// </summary>
+        public static int ToPointComponentIndex(this Axis axis)
+        {
+            switch (axis)
+            {               
+                case Axis.X:
+                    return 0;
+                case Axis.Y:
+                    return 1;
+                case Axis.Z:
+                    return 2;
+                default:
+                    return 3; //should throw OutOfRangeException if used as p[axis] = val;
+            }
+        }
     }
 
     public class Point<T> : IEquatable<Point<T>> where T : IComparable<T>, IEquatable<T>
@@ -42,8 +64,8 @@ namespace KDTrees
 
         public T this[Axis axis]
         {
-            get { return this.coordinates[(int)axis]; }
-            set { this.coordinates[(int)axis] = value; }
+            get { return this.coordinates[axis.ToPointComponentIndex()]; }
+            set { this.coordinates[axis.ToPointComponentIndex()] = value; }
         }
 
         public T X
@@ -84,6 +106,27 @@ namespace KDTrees
         {
         }
 
+        /// <summary>
+        /// Checks if the points *a* and *b* lie on a line parallel to an axis. This is 
+        /// true if one of their components (X, Y or Z) match.
+        /// </summary>
+        /// <returns></returns>
+        public static bool AreParallelToAnAxis(Point<T> a, Point<T> b, out Axis parallelAxis)
+        {
+            parallelAxis = Axis.None;
+
+            if (a.X.Equals(b.X))
+                parallelAxis |= Axis.X;
+
+            if (a.Y.Equals(b.Y))
+                parallelAxis |= Axis.Y;
+
+            if (a.Z.Equals(b.Z))
+                parallelAxis |= Axis.Z;
+
+            return parallelAxis != Axis.None;
+        }
+
         public bool Equals(Point<T> other)
         {
             return this.X.Equals(other.X) &&
@@ -122,7 +165,7 @@ namespace KDTrees
         }
     }
 
-    public class Point : Point<double>
+    public class Point : Point<double>, IGeometry
     {
         public Point(Point other)
             : base(other)
@@ -139,22 +182,6 @@ namespace KDTrees
         public Point(double x)
             : base(x)
         { }
-
-        /// <summary>
-        /// Implicitly converts *from* a WPF Point.
-        /// </summary>
-        public static implicit operator Point(System.Windows.Point wpfPoint)
-        {
-            return new Point(wpfPoint.X, wpfPoint.Y);
-        }
-
-        /// <summary>
-        /// Implicitly converts *to* a WPF Point by using only the X and Y components.
-        /// </summary>
-        public static implicit operator System.Windows.Point(Point point)
-        {
-            return new System.Windows.Point(point.X, point.Y);
-        }
 
         /// <summary>
         /// Returns true if all of the coordinates of first Point are less then those of second
@@ -246,6 +273,11 @@ namespace KDTrees
         public double DistanceTo2D(Point other)
         {
             return DistanceBetween2D(this, other);
+        }
+
+        public bool IsContainedIn(BoundingBox box)
+        {
+            return box.Contains(this);
         }
     }
 }

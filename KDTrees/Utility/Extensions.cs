@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -46,6 +47,42 @@ namespace KDTrees.Utility
             }
 
             return result;
+        }
+
+        /// <summary>
+        /// Removes all elements that satisfy the condition from *this* list.
+        /// </summary>
+        public static void RemoveIf<T>(this IList<T> list, Predicate<T> condition)
+        {
+            for (int i = 0; i < list.Count; i++)
+            {
+                if (condition(list[i]))
+                    list.RemoveAt(i--);
+            }
+        }
+
+        /// <summary>
+        /// Removes all elements that satisfy the condition from *this* list.
+        /// </summary>
+        public static void RemoveIf(this IList list, Predicate<object> condition)
+        {
+            for (int i = 0; i < list.Count; i++)
+            {
+                if (condition(list[i]))
+                    list.RemoveAt(i--);
+            }
+        }
+
+        /// <summary>
+        /// Removes all elements that are instances of type T (or derived from it).
+        /// </summary>
+        public static void RemoveElementsOfType<T>(this IList list)
+        {
+            for (int i = 0; i < list.Count; i++)
+            {
+                if (list[i] is T)
+                    list.RemoveAt(i--);
+            }
         }
 
         /// <summary>

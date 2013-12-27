@@ -4,10 +4,25 @@ using System.Linq;
 
 namespace KDTrees
 {
+    public interface IGeometry
+    {
+        bool IsContainedIn(BoundingBox box);
+    }
+
     public struct BoundingBox
     {
         public Point Min;
         public Point Max;
+
+        public double Width
+        {
+            get { return Max.X - Min.X; }
+        }
+
+        public double Height
+        {
+            get { return this.Max.Y - this.Min.Y; }
+        }
 
         public BoundingBox(Point min, Point max)
             : this()
@@ -18,6 +33,10 @@ namespace KDTrees
             this.Min = min;
             this.Max = max;
         }
+
+        public BoundingBox(double width, double height)
+            : this(new Point(0), new Point(width, height))
+        { }
 
         public BoundingBox(BoundingBox other)
         {
@@ -116,5 +135,33 @@ namespace KDTrees
         public static readonly BoundingBox MaxValue = new BoundingBox(
                     new Point(0.0, 0.0, 0.0),
                     new Point(double.MaxValue, double.MaxValue, double.MaxValue));
+
+
+        #region Splitted Box Comparer
+        private static readonly SplittedBoxComparer comparer = new SplittedBoxComparer();
+
+        public static IEqualityComparer<BoundingBox> GetSplittedBoxComparer()
+        {
+            return BoundingBox.comparer;
+        }
+
+        /// <summary>
+        /// Equals returns true if the two boxes have a common side.
+        /// </summary>
+        class SplittedBoxComparer : IEqualityComparer<BoundingBox>
+        {
+            public bool Equals(BoundingBox x, BoundingBox y)
+            {
+                Axis ignore;
+                return Point.AreParallelToAnAxis(x.Min, y.Max, out ignore) ||
+                    Point.AreParallelToAnAxis(x.Max, y.Min, out ignore);
+            }
+
+            public int GetHashCode(BoundingBox obj)
+            {
+                throw new NotImplementedException();
+            }
+        }
+        #endregion
     }
 }
