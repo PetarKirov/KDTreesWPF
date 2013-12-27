@@ -41,6 +41,7 @@ namespace KDTrees
 
         /// <summary>
         /// Returns 0, 1 or 2 for values of X, Y or Z, respectively.
+        /// Otherwise, returns 3.
         /// </summary>
         public static int ToPointComponentIndex(this Axis axis)
         {

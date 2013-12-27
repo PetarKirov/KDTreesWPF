@@ -40,6 +40,19 @@ namespace KDTreesTests
         }
 
         [TestMethod]
+        public void AxisEnum_Test()
+        {
+            Assert.AreEqual(0L, (uint)Axis.None);
+            Assert.AreEqual(1L, (uint)Axis.X);
+            Assert.AreEqual(2L, (uint)Axis.Y);
+            Assert.AreEqual(4L, (uint)Axis.Z);
+            Assert.AreEqual(3L, (uint)Axis.XY);
+            Assert.AreEqual(5L, (uint)Axis.XZ);
+            Assert.AreEqual(6L, (uint)Axis.YZ);
+            Assert.AreEqual(7L, (uint)Axis.XYZ);
+        }
+
+        [TestMethod]
         public void ParallelToAnAxis_WithEqualPoints_ShouldReturn_True_AndPassOut_XYZ()
         {
             Point eqA = new Point(3, 0, 4);
